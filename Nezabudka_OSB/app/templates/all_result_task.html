@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Отчет по заданиям</title>
+    <link rel="shortcut icon" href="http://192.168.113.249:8015/static/image.ico" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+          crossorigin="anonymous">
+
+    <style>
+        /* Стили для ячеек таблицы, чтобы текст не выходил за пределы */
+        td {
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+        /* Темная тема */
+        body {
+            background-color: #343a40; /* Темный фон */
+            color: #ffffff; /* Белый текст */
+        }
+        .table {
+            background-color: #495057; /* Цвет фона таблицы */
+        }
+        .table th {
+            background-color: #007bff; /* Цвет фона заголовков таблицы */
+            color: white; /* Цвет текста заголовков */
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #6c757d; /* Цвет фона для четных строк */
+        }
+    </style>
+</head>
+<body class="container mt-4">
+    <!-- Таблица для отображения заданий -->
+    <table class="table table-striped table-bordered fw-bold mt-3">
+        <thead>
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Задание</th>
+                <th scope="col">Дата создания</th>
+                <th scope="col">Дата выполнения</th>
+                <th scope="col">ФИО</th>
+            </tr>
+        </thead>
+        <tbody id="taskTableBody">
+            {% for result in all_result_task %}
+            <!-- Заполнение таблицы существующими заданиями -->
+            <tr>
+                <td>{{ result.id }}</td>
+                <td>{{ result.task }}</td>
+                <td>{{ result.data_create_task }}</td>
+                <td>{{ result.data_result_task }}</td>
+                <td>{{ result.name_user }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Подключение скриптов Bootstrap (если необходимо) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-7j0g2e8g2e8g2e8g2e8g2e8g2e8g2e8g2e8g2e8g2e8g2e8g2e8g2e8g2e8"
+            crossorigin="anonymous"></script>
+
+</body>
+</html>

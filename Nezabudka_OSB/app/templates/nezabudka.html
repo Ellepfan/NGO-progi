@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="shortcut icon" href="http://192.168.113.249:8015/static/image.ico" />
+    <title>Главная страница</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-image: url('http://192.168.113.249:8015/static/nez.jpg'); /* Укажите путь к вашему изображению */
+            background-size: cover; /* Изображение будет покрывать весь фон */
+            background-position: center; /* Центрируем изображение */
+            background-repeat: no-repeat; /* Не повторяем изображение */
+            background-attachment: fixed; /* Фон фиксирован относительно окна браузера */
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 300px;
+            margin: 0 auto;
+            position: relative; /* Относительное позиционирование для блока кнопок */
+            z-index: 1; /* Устанавливаем z-index выше фона */
+        }
+        a.button {
+            display: block;
+            text-align: center;
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        a.button:hover {
+            background-color: #0056b3;
+        }
+        .spacer {
+            height: 200px; /* Высота отступа для создания пространства под кнопками */
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container">
+        <a href="http://192.168.113.249:8015/pages/all_tasks" class="button" rel="noopener noreferrer">Создать задание</a>
+        <a href="http://192.168.113.249:8015/pages/monitor" class="button" rel="noopener noreferrer">Мониторинг</a>
+        <a href="http://192.168.113.249:8015/pages/all_result_task_poisk" class="button" rel="noopener noreferrer">Отчет</a>
+    </div>
+
+    <div class="spacer"></div> <!-- Отступ для создания пространства под кнопками -->
+</body>
+</html>
