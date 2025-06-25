@@ -1,0 +1,84 @@
+[2025-06-20 14:30:13] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:31:15] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:32:17] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:32:23] Web lock with message: ���
+[2025-06-20 14:33:20] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 14:34:38] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 14:39:45] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:40:07] Web lock with message: РАйко иди на Х
+[2025-06-20 14:40:47] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 14:41:55] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 14:42:07] Web unlock
+[2025-06-20 14:42:59] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:45:36] Check lock from 127.0.0.1. Status: False
+[2025-06-20 14:46:38] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:47:07] Web lock with message: хуй тебе
+[2025-06-20 14:47:40] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 14:48:26] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 14:48:38] Web unlock
+[2025-06-20 14:48:52] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:49:54] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 14:50:21] Web lock with message: Хуй Райко
+[2025-06-20 14:50:56] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 14:52:47] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:01:24] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:01:35] Web unlock
+[2025-06-20 15:02:16] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:02:19] Button pressed from 127.0.0.1. Total presses: 1
+[2025-06-20 15:02:26] Button pressed from 127.0.0.1. Total presses: 2
+[2025-06-20 15:02:34] Button pressed from 127.0.0.1. Total presses: 3
+[2025-06-20 15:02:37] Button pressed from 127.0.0.1. Total presses: 4
+[2025-06-20 15:03:05] Button pressed from 127.0.0.1. Total presses: 5
+[2025-06-20 15:03:18] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:03:40] Button pressed from 127.0.0.1. Total presses: 6
+[2025-06-20 15:03:42] Button pressed from 127.0.0.1. Total presses: 7
+[2025-06-20 15:03:59] Web lock with message: Хуй Тебе
+[2025-06-20 15:04:03] Button pressed from 127.0.0.1. Total presses: 8
+[2025-06-20 15:04:20] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:05:36] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:08:47] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:09:51] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:11:14] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:13:07] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:16:49] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:21:07] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:25:49] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:28:38] Web unlock
+[2025-06-20 15:29:26] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:29:33] Button pressed from 127.0.0.1. Total presses: 9
+[2025-06-20 15:32:27] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:36:58] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:38:00] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:38:06] Button pressed from 127.0.0.1. Total presses: 10
+[2025-06-20 15:38:20] Button pressed from 127.0.0.1. Total presses: 11
+[2025-06-20 15:39:02] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:39:28] Web lock with message: хуй
+[2025-06-20 15:39:50] Button pressed from 127.0.0.1. Total presses: 12
+[2025-06-20 15:40:04] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:41:13] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:42:17] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:42:59] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:44:04] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:45:11] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:46:15] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:46:46] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:47:54] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:49:00] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:55:46] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 15:56:04] Web unlock
+[2025-06-20 15:56:51] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:57:53] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:58:55] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 15:59:57] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 16:00:59] Check lock request from 127.0.0.1. Locked: False
+[2025-06-20 16:01:28] Web lock with message: Серега где деньги
+[2025-06-20 16:02:01] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 16:03:23] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 16:04:29] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 16:05:36] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 16:06:39] Check lock request from 127.0.0.1. Locked: True
+[2025-06-20 16:16:39] Web global lock with message: Хуй
+[2025-06-20 16:20:12] Web global lock with message: Хуй
+[2025-06-20 16:23:57] IP lock activated for 192.168.113.254 with message: Приложение заблокировано администратором
+[2025-06-20 16:24:16] Web global unlock
+[2025-06-20 16:24:41] IP lock activated for 192.168.113.254 with message: Приложение заблокировано администратором
