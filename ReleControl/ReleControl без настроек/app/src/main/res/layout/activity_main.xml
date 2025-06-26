@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <Switch
+        android:id="@+id/Rele1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 1" />
+    <Switch
+        android:id="@+id/Rele2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 2" />
+    <Switch
+        android:id="@+id/Rele3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 3" />
+    <Switch
+        android:id="@+id/Rele4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 4" />
+    <Switch
+        android:id="@+id/Rele5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 5" />
+    <Switch
+        android:id="@+id/Rele6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 6" />
+    <Switch
+        android:id="@+id/Rele7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 7" />
+    <Switch
+        android:id="@+id/Rele8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Реле 8" />
+</LinearLayout>

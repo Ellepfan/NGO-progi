@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="IP адрес устройства"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/ip_address_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:hint="192.168.43.243"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Названия реле"
+            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
+
+        <EditText
+            android:id="@+id/rele1_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 1"/>
+
+        <EditText
+            android:id="@+id/rele2_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 2"/>
+
+        <EditText
+            android:id="@+id/rele3_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 3"/>
+
+        <EditText
+            android:id="@+id/rele4_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 4"/>
+
+        <EditText
+            android:id="@+id/rele5_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 5"/>
+
+        <EditText
+            android:id="@+id/rele6_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 6"/>
+
+        <EditText
+            android:id="@+id/rele7_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 7"/>
+
+        <EditText
+            android:id="@+id/rele8_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Реле 8"/>
+
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Сохранить"/>
+
+    </LinearLayout>
+</ScrollView>
