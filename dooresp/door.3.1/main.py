@@ -7,6 +7,7 @@ import threading
 import sys
 import time
 import os
+import json
 from cryptography.fernet import Fernet
 
 
@@ -20,6 +21,7 @@ class RelayControlApp:
         self._offset_y = 0
         self.button_presses = 0
         self.start_time = time.time()
+        self.status_file = "status.json"  # Файл для хранения статуса
 
         # Настройка шифрования
         self.encryption_key = b'N_l4-Y_Bze4MMJDQWj9uWdjQkOSQA8MC69kvZ6ANDzA='  # Замените на свой ключ!
@@ -32,6 +34,7 @@ class RelayControlApp:
         self.load_images()
         self.setup_ui()
         self.setup_tray_icon()
+        self.load_last_status()  # Загружаем последний статус при запуске
         self.check_lock_status()
 
         # Иконка приложения
@@ -106,6 +109,11 @@ class RelayControlApp:
             messagebox.showwarning("Заблокировано", self.lock_message)
             return
 
+        # Если сервер недоступен, но локальный статус показывает блокировку
+        if not self.server_available and self.lock_mode:
+            messagebox.showwarning("Заблокировано", "Сервер недоступен. Приложение остается заблокированным.")
+            return
+
         try:
             decrypted_url = self.decrypt_url()
             if not decrypted_url:
@@ -118,7 +126,7 @@ class RelayControlApp:
             # Отправляем информацию о нажатии только если сервер доступен
             if self.server_available:
                 try:
-                    requests.post("http://192.168.113.252:8000/api/button_press", timeout=3)
+                    requests.post("http://192.168.9.51:8001/api/button_press", timeout=3)
                 except Exception:
                     self.server_available = False  # Сервер стал недоступен
         except Exception as e:
@@ -130,7 +138,7 @@ class RelayControlApp:
         if self.server_available:  # Отправляем только если сервер доступен
             try:
                 requests.post(
-                    "http://192.168.113.252:8000/api/client_uptime",
+                    "http://192.168.9.51:8001/api/client_uptime",
                     json={"minutes": uptime_minutes},
                     timeout=3
                 )
@@ -159,14 +167,43 @@ class RelayControlApp:
         self.root.withdraw()
 
     def exit_app(self, icon=None, item=None):
+        self.save_last_status()  # Сохраняем статус перед выходом
         if hasattr(self, 'tray_icon'):
             self.tray_icon.stop()
         self.root.destroy()
         sys.exit()
 
+    def load_last_status(self):
+        """Загружает последний сохраненный статус из файла."""
+        try:
+            if os.path.exists(self.status_file):
+                with open(self.status_file, 'r') as f:
+                    data = json.load(f)
+                    self.lock_mode = data.get('lock_mode', False)
+                    self.lock_message = data.get('lock_message', "")
+
+                    # Применяем загруженный статус
+                    if self.lock_mode:
+                        self.activate_lock(self.lock_message, save=False)
+                    else:
+                        self.deactivate_lock(save=False)
+        except Exception as e:
+            print(f"Ошибка загрузки статуса: {e}")
+
+    def save_last_status(self):
+        """Сохраняет текущий статус в файл."""
+        try:
+            with open(self.status_file, 'w') as f:
+                json.dump({
+                    'lock_mode': self.lock_mode,
+                    'lock_message': self.lock_message
+                }, f)
+        except Exception as e:
+            print(f"Ошибка сохранения статуса: {e}")
+
     def check_lock_status(self, icon=None, item=None):
         try:
-            response = requests.get("http://192.168.113.252:8000/api/check_lock", timeout=5)
+            response = requests.get("http://192.168.9.51:8001/api/check_lock", timeout=5)
             data = response.json()
             self.server_available = True  # Сервер доступен
 
@@ -176,13 +213,13 @@ class RelayControlApp:
                 self.deactivate_lock()
         except Exception:
             self.server_available = False  # Сервер недоступен
-            self.deactivate_lock()  # Разблокируем приложение, если сервер недоступен
+            # Не изменяем статус блокировки, оставляем последний известный
 
     def periodic_lock_check(self):
         self.check_lock_status()
         self.root.after(60000, self.periodic_lock_check)
 
-    def activate_lock(self, message):
+    def activate_lock(self, message, save=True):
         self.lock_mode = True
         self.lock_message = message
 
@@ -195,13 +232,19 @@ class RelayControlApp:
         self.root.deiconify()
         messagebox.showwarning("Блокировка", message)
 
-    def deactivate_lock(self):
+        if save:
+            self.save_last_status()
+
+    def deactivate_lock(self, save=True):
         self.lock_mode = False
         self.lock_message = ""
 
         self.btn.config(state='normal')
         self.btn.config(image=self.python_logo_on)
         self.lock_label.lower()
+
+        if save:
+            self.save_last_status()
 
 
 if __name__ == "__main__":
