@@ -1,0 +1,12 @@
+{
+  "global_lock": {
+    "is_locked": false,
+    "message": ""
+  },
+  "ip_locks": {
+    "192.168.1.100": {
+      "is_locked": true,
+      "message": "Тестовая блокировка"
+    }
+  }
+}

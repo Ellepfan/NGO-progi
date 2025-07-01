@@ -1,0 +1,13 @@
+{
+  "button_presses": 42,
+  "client_uptimes": {
+    "192.168.1.100": 120
+  },
+  "ip_activities": {
+    "192.168.1.100": {
+      "last_seen": "2023-05-15T14:30:00.000000",
+      "press_count": 15,
+      "is_locked": true
+    }
+  }
+}

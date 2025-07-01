@@ -4,474 +4,386 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Панель управления блокировкой</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         :root {
             --primary-color: #4361ee;
             --danger-color: #f72585;
             --success-color: #4cc9f0;
-            --light-bg: #f8f9fa;
-            --dark-text: #212529;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --warning-color: #ff9e00;
+            --dark-color: #212529;
+            --light-color: #f8f9fa;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--dark-text);
-            background-color: var(--light-bg);
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
         }
 
-        h1, h2 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
-        .card {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .status {
-            padding: 15px;
-            border-radius: var(--border-radius);
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .status.locked {
-            background-color: #ffebee;
-            color: #c62828;
-            border-left: 5px solid var(--danger-color);
-        }
-
-        .status.unlocked {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border-left: 5px solid var(--success-color);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        input[type="password"], textarea, select, input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 16px;
-            transition: border 0.3s;
-        }
-
-        input[type="password"]:focus, textarea:focus, select:focus, input[type="text"]:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-
-        .btn:hover {
-            opacity: 0.9;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-        }
-
-        .alert-error {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-
-        .alert-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .info-box {
-            background-color: #e3f2fd;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            margin-top: 20px;
-        }
-
-        .log-container {
-            margin-top: 30px;
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 20px;
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .log-content {
-            max-height: 300px;
-            overflow-y: auto;
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            font-family: monospace;
-            white-space: pre-wrap;
-        }
-
-        .log-entry {
-            margin-bottom: 5px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .log-date {
-            color: #6c757d;
-            font-size: 0.9em;
-        }
-
-        .log-message {
-            color: var(--dark-text);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 15px;
-            box-shadow: var(--box-shadow);
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: #6c757d;
-        }
-
-        .ip-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .ip-table th, .ip-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .ip-table th {
-            background-color: #f2f2f2;
-            font-weight: 600;
-        }
-
-        .ip-table tr:hover {
-            background-color: #f5f5f5;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .badge-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .badge-danger {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-
-        .badge-warning {
-            background-color: #fff8e1;
-            color: #ff8f00;
-        }
-
-        .tab-container {
-            margin-bottom: 20px;
-        }
-
-        .tab-buttons {
-            display: flex;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 20px;
-        }
-
-        .tab-button {
-            padding: 10px 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            border-bottom: 3px solid transparent;
+        .status-card {
+            border-left: 5px solid;
             transition: all 0.3s;
         }
 
-        .tab-button.active {
-            border-bottom: 3px solid var(--primary-color);
-            color: var(--primary-color);
+        .status-card.locked {
+            border-left-color: var(--danger-color);
+            background-color: rgba(247, 37, 133, 0.1);
+        }
+
+        .status-card.unlocked {
+            border-left-color: var(--success-color);
+            background-color: rgba(76, 201, 240, 0.1);
+        }
+
+        .badge-locked {
+            background-color: var(--danger-color);
+        }
+
+        .badge-unlocked {
+            background-color: var(--success-color);
+        }
+
+        .badge-warning {
+            background-color: var(--warning-color);
+        }
+
+        .log-entry {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 10px;
+            margin-bottom: 8px;
+        }
+
+        .log-time {
+            color: #6c757d;
+            font-size: 0.85em;
+        }
+
+        .stat-card {
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .ip-row:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .nav-tabs .nav-link.active {
             font-weight: bold;
+            border-bottom: 3px solid var(--primary-color);
         }
 
-        .tab-content {
-            display: none;
+        #log-content {
+            max-height: 500px;
+            overflow-y: auto;
         }
 
-        .tab-content.active {
-            display: block;
+        .last-seen {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .press-count {
+            font-weight: bold;
+            color: var(--primary-color);
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Панель управления блокировкой</h1>
-    </header>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-6 fw-bold">
+                    <i class="bi bi-shield-lock"></i> Панель управления блокировкой
+                </h1>
+                <p class="text-muted">Управление состоянием системы и клиентами</p>
+            </div>
+        </div>
 
-    <main>
         <!-- Сообщения об ошибках/успехе -->
         {% if request.query_params.get("error") %}
-        <div class="alert alert-error">
-            ⚠️ {{ request.query_params.get("error") }}
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ request.query_params.get("error") }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        {% if request.query_params.get("success") %}
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill"></i> {{ request.query_params.get("success") }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         {% endif %}
 
         <!-- Статус блокировки -->
-        <div class="status {% if global_lock.is_locked %}locked{% else %}unlocked{% endif %}">
-            {% if global_lock.is_locked %}
-                🔒 Глобальная блокировка активна
-                {% if global_lock.message %}<p>{{ global_lock.message }}</p>{% endif %}
-            {% else %}
-                🔓 Глобальная блокировка неактивна
-            {% endif %}
+        <div class="card status-card mb-4 {% if global_lock.is_locked %}locked{% else %}unlocked{% endif %}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">
+                            {% if global_lock.is_locked %}
+                                <i class="bi bi-lock-fill text-danger"></i> Глобальная блокировка активна
+                            {% else %}
+                                <i class="bi bi-unlock-fill text-success"></i> Глобальная блокировка неактивна
+                            {% endif %}
+                        </h5>
+                        {% if global_lock.is_locked and global_lock.message %}
+                        <p class="card-text">{{ global_lock.message }}</p>
+                        {% endif %}
+                    </div>
+                    <span class="badge rounded-pill {% if global_lock.is_locked %}bg-danger{% else %}bg-success{% endif %}">
+                        {% if global_lock.is_locked %}АКТИВНА{% else %}НЕАКТИВНА{% endif %}
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <!-- Табы -->
-        <div class="tab-container">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="openTab('stats')">Статистика</button>
-                <button class="tab-button" onclick="openTab('global-lock')">Глобальная блокировка</button>
-                <button class="tab-button" onclick="openTab('ip-lock')">Блокировка по IP</button>
-                <button class="tab-button" onclick="openTab('logs')">Логи</button>
-            </div>
+        <!-- Навигационные вкладки -->
+        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab">
+                    <i class="bi bi-bar-chart-line"></i> Статистика
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="lock-tab" data-bs-toggle="tab" data-bs-target="#lock" type="button" role="tab">
+                    <i class="bi bi-lock"></i> Глобальная блокировка
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="ip-tab" data-bs-toggle="tab" data-bs-target="#ip" type="button" role="tab">
+                    <i class="bi bi-ip"></i> Блокировка по IP
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab">
+                    <i class="bi bi-journal-text"></i> Логи сервера
+                </button>
+            </li>
+        </ul>
 
+        <!-- Содержимое вкладок -->
+        <div class="tab-content" id="myTabContent">
             <!-- Вкладка статистики -->
-            <div id="stats" class="tab-content active">
-                <section class="card">
-                    <h2>Общая статистика</h2>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value" id="total-presses">0</div>
-                            <div class="stat-label">Всего нажатий кнопки</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="active-clients">0</div>
-                            <div class="stat-label">Активных клиентов</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value" id="locked-clients">0</div>
-                            <div class="stat-label">Заблокированных IP</div>
+            <div class="tab-pane fade show active" id="stats" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <h3 class="card-title" id="total-presses">0</h3>
+                                <p class="card-text text-muted">Всего нажатий кнопки</p>
+                                <i class="bi bi-mouse text-primary" style="font-size: 2rem;"></i>
+                            </div>
                         </div>
                     </div>
-                </section>
+                    <div class="col-md-4">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <h3 class="card-title" id="active-clients">0</h3>
+                                <p class="card-text text-muted">Активных клиентов</p>
+                                <i class="bi bi-pc-display text-success" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card stat-card h-100">
+                            <div class="card-body text-center">
+                                <h3 class="card-title" id="locked-clients">0</h3>
+                                <p class="card-text text-muted">Заблокированных IP</p>
+                                <i class="bi bi-lock-fill text-danger" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <section class="card">
-                    <h2>Активные IP-адреса</h2>
-                    <table class="ip-table" id="ip-table">
-                        <thead>
-                            <tr>
-                                <th>IP-адрес</th>
-                                <th>Последняя активность</th>
-                                <th>Нажатий</th>
-                                <th>Статус</th>
-                                <th>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Заполняется JavaScript -->
-                        </tbody>
-                    </table>
-                </section>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Активные IP-адреса</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="ip-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>IP-адрес</th>
+                                        <th>Последняя активность</th>
+                                        <th>Нажатий</th>
+                                        <th>Статус</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Заполняется JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Вкладка глобальной блокировки -->
-            <div id="global-lock" class="tab-content">
-                <!-- Форма разблокировки -->
-                <section class="card">
-                    <h2>Разблокировать все</h2>
-                    <form action="/unlock" method="post">
-                        <div class="form-group">
-                            <label for="unlock-password">Пароль администратора:</label>
-                            <input type="password" id="unlock-password" name="password" required>
-                            <input type="hidden" name="target_ip" value="all">
+            <div class="tab-pane fade" id="lock" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0"><i class="bi bi-lock-fill"></i> Заблокировать все</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/lock" method="post">
+                                    <div class="mb-3">
+                                        <label for="lock-password" class="form-label">Пароль администратора</label>
+                                        <input type="password" class="form-control" id="lock-password" name="password" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="message" class="form-label">Сообщение для пользователей</label>
+                                        <textarea class="form-control" id="message" name="message" rows="3" required>{% if global_lock.is_locked %}{{ global_lock.message }}{% else %}Приложение заблокировано администратором{% endif %}</textarea>
+                                    </div>
+                                    <input type="hidden" name="target_ip" value="all">
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="bi bi-lock-fill"></i> Заблокировать все
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-danger">Разблокировать все</button>
-                    </form>
-                </section>
+                    </div>
 
-                <!-- Форма блокировки -->
-                <section class="card">
-                    <h2>Заблокировать все</h2>
-                    <form action="/lock" method="post">
-                        <div class="form-group">
-                            <label for="lock-password">Пароль администратора:</label>
-                            <input type="password" id="lock-password" name="password" required>
-                            <input type="hidden" name="target_ip" value="all">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="bi bi-unlock-fill"></i> Разблокировать все</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/unlock" method="post">
+                                    <div class="mb-3">
+                                        <label for="unlock-password" class="form-label">Пароль администратора</label>
+                                        <input type="password" class="form-control" id="unlock-password" name="password" required>
+                                    </div>
+                                    <input type="hidden" name="target_ip" value="all">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-unlock-fill"></i> Разблокировать все
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="message">Сообщение для пользователей:</label>
-                            <textarea id="message" name="message" required>{% if global_lock.is_locked %}{{ global_lock.message }}{% else %}Приложение заблокировано администратором{% endif %}</textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Заблокировать все</button>
-                    </form>
-                </section>
+                    </div>
+                </div>
             </div>
 
             <!-- Вкладка блокировки по IP -->
-            <div id="ip-lock" class="tab-content">
-                <section class="card">
-                    <h2>Блокировка по IP</h2>
-                    <div class="form-group">
-                        <label for="ip-to-lock">IP-адрес для блокировки:</label>
-                        <input type="text" id="ip-to-lock" name="ip-to-lock" placeholder="Введите IP-адрес">
+            <div class="tab-pane fade" id="ip" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-lock"></i> Блокировка по IP</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="ip-to-lock" class="form-label">IP-адрес</label>
+                                    <input type="text" class="form-control" id="ip-to-lock" placeholder="Введите IP-адрес">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="ip-message" class="form-label">Сообщение</label>
+                                    <textarea class="form-control" id="ip-message" rows="3">Приложение заблокировано администратором</textarea>
+                                </div>
+                                <button class="btn btn-primary me-2" onclick="lockIp()">
+                                    <i class="bi bi-lock-fill"></i> Заблокировать
+                                </button>
+                                <button class="btn btn-danger" onclick="unlockIp()">
+                                    <i class="bi bi-unlock-fill"></i> Разблокировать
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="ip-message">Сообщение для пользователя:</label>
-                        <textarea id="ip-message" name="ip-message">Приложение заблокировано администратором</textarea>
-                    </div>
-                    <button class="btn btn-primary" onclick="lockIp()">Заблокировать IP</button>
-                    <button class="btn btn-danger" onclick="unlockIp()">Разблокировать IP</button>
-                </section>
 
-                <section class="card">
-                    <h2>Заблокированные IP-адреса</h2>
-                    <table class="ip-table" id="locked-ip-table">
-                        <thead>
-                            <tr>
-                                <th>IP-адрес</th>
-                                <th>Сообщение</th>
-                                <th>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Заполняется JavaScript -->
-                        </tbody>
-                    </table>
-                </section>
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0"><i class="bi bi-list-check"></i> Заблокированные IP-адреса</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table" id="locked-ip-table">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>IP-адрес</th>
+                                                <th>Сообщение</th>
+                                                <th>Действия</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Заполняется JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Вкладка логов -->
-            <div id="logs" class="tab-content">
-                <section class="log-container">
-                    <div class="log-header">
-                        <h2>Логи сервера</h2>
-                        <div>
-                            <select id="log-date">
-                                <option value="today">Сегодня</option>
-                                <option value="yesterday">Вчера</option>
-                                <option value="all">Все логи</option>
-                            </select>
-                            <button class="btn btn-secondary" onclick="refreshLogs()">Обновить</button>
+            <div class="tab-pane fade" id="logs" role="tabpanel">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-journal-text"></i> Логи сервера</h5>
+                            <div>
+                                <select class="form-select form-select-sm me-2" id="log-date" style="width: 120px; display: inline-block;">
+                                    <option value="today">Сегодня</option>
+                                    <option value="yesterday">Вчера</option>
+                                    <option value="all">Все логи</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline-primary" onclick="refreshLogs()">
+                                    <i class="bi bi-arrow-clockwise"></i> Обновить
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="log-content" id="log-content">
-                        Загрузка логов...
+                    <div class="card-body">
+                        <div class="log-content" id="log-content">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Загрузка...</span>
+                                </div>
+                                <p class="mt-2">Загрузка логов...</p>
+                            </div>
+                        </div>
                     </div>
-                </section>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Функции для работы с табами
-        function openTab(tabId) {
-            // Скрыть все вкладки
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
+        // Функция для форматирования даты
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('ru-RU');
+        }
 
-            // Убрать активный класс у всех кнопок
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
+        // Функция для расчета времени с последней активности
+        function timeSince(lastSeen) {
+            const now = new Date();
+            const lastSeenDate = new Date(lastSeen);
+            const seconds = Math.floor((now - lastSeenDate) / 1000);
 
-            // Показать выбранную вкладку
-            document.getElementById(tabId).classList.add('active');
+            if (seconds < 60) return `${seconds} сек назад`;
 
-            // Добавить активный класс к выбранной кнопке
-            event.currentTarget.classList.add('active');
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} мин назад`;
 
-            // Если открываем вкладку с IP, обновляем данные
-            if (tabId === 'ip-lock') {
-                updateLockedIpsTable();
-            }
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} ч назад`;
+
+            const days = Math.floor(hours / 24);
+            return `${days} дн назад`;
         }
 
         // Загрузка статистики
@@ -481,6 +393,7 @@
                 if (!response.ok) throw new Error('Ошибка сети');
                 const data = await response.json();
 
+                // Обновляем общую статистику
                 document.getElementById('total-presses').textContent = data.button_presses || 0;
                 document.getElementById('active-clients').textContent = Object.keys(data.ip_activities || {}).length;
 
@@ -504,7 +417,7 @@
 
             if (!ipActivities || Object.keys(ipActivities).length === 0) {
                 const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="5" style="text-align: center;">Нет данных об активных IP-адресах</td>';
+                row.innerHTML = '<td colspan="5" class="text-center py-4 text-muted">Нет данных об активных IP-адресах</td>';
                 tableBody.appendChild(row);
                 return;
             }
@@ -516,6 +429,7 @@
 
             sortedIps.forEach(([ip, data]) => {
                 const row = document.createElement('tr');
+                row.className = 'ip-row align-middle';
 
                 const lastSeen = new Date(data.last_seen);
                 const now = new Date();
@@ -523,21 +437,28 @@
 
                 let statusBadge = '';
                 if (data.is_locked) {
-                    statusBadge = '<span class="badge badge-danger">Заблокирован</span>';
+                    statusBadge = '<span class="badge bg-danger"><i class="bi bi-lock-fill"></i> Заблокирован</span>';
                 } else if (minutesAgo > 5) {
-                    statusBadge = '<span class="badge badge-warning">Неактивен</span>';
+                    statusBadge = '<span class="badge bg-warning"><i class="bi bi-clock-history"></i> Неактивен</span>';
                 } else {
-                    statusBadge = '<span class="badge badge-success">Активен</span>';
+                    statusBadge = '<span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Активен</span>';
                 }
 
                 row.innerHTML = `
-                    <td>${ip}</td>
-                    <td>${minutesAgo} мин. назад (${lastSeen.toLocaleString()})</td>
-                    <td>${data.press_count || 0}</td>
+                    <td>
+                        <strong>${ip}</strong>
+                        <div class="last-seen">${formatDateTime(data.last_seen)}</div>
+                    </td>
+                    <td>${timeSince(data.last_seen)}</td>
+                    <td class="press-count">${data.press_count || 0}</td>
                     <td>${statusBadge}</td>
                     <td>
-                        <button class="btn btn-sm btn-primary" onclick="prepareLockIp('${ip}')">Блок</button>
-                        <button class="btn btn-sm btn-danger" onclick="prepareUnlockIp('${ip}')">Разблок</button>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="prepareLockIp('${ip}')">
+                            <i class="bi bi-lock-fill"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="prepareUnlockIp('${ip}')">
+                            <i class="bi bi-unlock-fill"></i>
+                        </button>
                     </td>
                 `;
 
@@ -562,18 +483,21 @@
 
                 if (lockedIps.length === 0) {
                     const row = document.createElement('tr');
-                    row.innerHTML = '<td colspan="3" style="text-align: center;">Нет заблокированных IP-адресов</td>';
+                    row.innerHTML = '<td colspan="3" class="text-center py-4 text-muted">Нет заблокированных IP-адресов</td>';
                     tableBody.appendChild(row);
                     return;
                 }
 
                 lockedIps.forEach(([ip, ipData]) => {
                     const row = document.createElement('tr');
+                    row.className = 'align-middle';
                     row.innerHTML = `
-                        <td>${ip}</td>
+                        <td><strong>${ip}</strong></td>
                         <td>${ipData.message || 'Приложение заблокировано администратором'}</td>
                         <td>
-                            <button class="btn btn-sm btn-danger" onclick="unlockIp('${ip}')">Разблокировать</button>
+                            <button class="btn btn-sm btn-danger" onclick="unlockIp('${ip}')">
+                                <i class="bi bi-unlock-fill"></i> Разблокировать
+                            </button>
                         </td>
                     `;
                     tableBody.appendChild(row);
@@ -588,13 +512,19 @@
         function prepareLockIp(ip) {
             document.getElementById('ip-to-lock').value = ip;
             document.getElementById('ip-message').value = 'Приложение заблокировано администратором';
-            openTab('ip-lock');
+
+            // Переключаемся на вкладку блокировки по IP
+            const ipTab = new bootstrap.Tab(document.getElementById('ip-tab'));
+            ipTab.show();
         }
 
         // Подготовка к разблокировке IP (заполнение формы)
         function prepareUnlockIp(ip) {
             document.getElementById('ip-to-lock').value = ip;
-            openTab('ip-lock');
+
+            // Переключаемся на вкладку блокировки по IP
+            const ipTab = new bootstrap.Tab(document.getElementById('ip-tab'));
+            ipTab.show();
         }
 
         // Блокировка IP
@@ -682,38 +612,51 @@
         // Загрузка логов
         async function loadLogs(date = 'today') {
             try {
+                const logContent = document.getElementById('log-content');
+                logContent.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                        <p class="mt-2">Загрузка логов...</p>
+                    </div>
+                `;
+
                 const response = await fetch(`/api/logs?date=${date}`);
                 if (!response.ok) throw new Error('Ошибка сети');
                 const logs = await response.json();
 
-                const logContent = document.getElementById('log-content');
                 logContent.innerHTML = '';
 
                 if (logs.length === 0) {
-                    logContent.textContent = 'Нет записей логов для выбранной даты';
+                    logContent.innerHTML = '<div class="text-center py-4 text-muted">Нет записей логов для выбранной даты</div>';
                     return;
                 }
 
                 // Отображаем логи в обратном порядке (новые сверху)
                 logs.reverse().forEach(log => {
                     const logEntry = document.createElement('div');
-                    logEntry.className = 'log-entry';
+                    logEntry.className = 'log-entry mb-2';
 
-                    const logDate = document.createElement('span');
-                    logDate.className = 'log-date';
-                    logDate.textContent = log.timestamp + ' ';
+                    const logTime = document.createElement('div');
+                    logTime.className = 'log-time text-muted small';
+                    logTime.textContent = log.timestamp;
 
-                    const logMessage = document.createElement('span');
+                    const logMessage = document.createElement('div');
                     logMessage.className = 'log-message';
                     logMessage.textContent = log.message;
 
-                    logEntry.appendChild(logDate);
+                    logEntry.appendChild(logTime);
                     logEntry.appendChild(logMessage);
                     logContent.appendChild(logEntry);
                 });
             } catch (error) {
                 console.error('Ошибка загрузки логов:', error);
-                document.getElementById('log-content').textContent = 'Ошибка загрузки логов: ' + error.message;
+                document.getElementById('log-content').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Ошибка загрузки логов: ${error.message}
+                    </div>
+                `;
             }
         }
 
@@ -726,15 +669,32 @@
         function startAutoRefresh() {
             loadStats();
             loadLogs();
+
             setInterval(loadStats, 30000);
             setInterval(() => {
-                const date = document.getElementById('log-date').value;
-                loadLogs(date);
+                if (document.getElementById('logs').classList.contains('active')) {
+                    const date = document.getElementById('log-date').value;
+                    loadLogs(date);
+                }
             }, 30000);
         }
 
         // Инициализация при загрузке страницы
-        document.addEventListener('DOMContentLoaded', startAutoRefresh);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Инициализация вкладок Bootstrap
+            const tabEls = document.querySelectorAll('button[data-bs-toggle="tab"]');
+            tabEls.forEach(tabEl => {
+                tabEl.addEventListener('shown.bs.tab', event => {
+                    if (event.target.id === 'ip-tab') {
+                        updateLockedIpsTable();
+                    } else if (event.target.id === 'logs-tab') {
+                        refreshLogs();
+                    }
+                });
+            });
+
+            startAutoRefresh();
+        });
     </script>
 </body>
 </html>
