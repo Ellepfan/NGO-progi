@@ -1,0 +1,46 @@
+### Общие правила ###
+# Системные файлы
+.DS_Store
+Thumbs.db
+*.swp
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.bak
+
+# Папки зависимостей
+node_modules/
+vendor/
+__pycache__/
+.env
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.suo
+*.user
+# Байт-код
+__pycache__/
+*.py[cod]
+
+# Виртуальные окружения
+venv/
+env/
+.venv/
+
+# Логи и данные
+*.log
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Установленные пакеты
+*.egg-info/
+dist/
+build/

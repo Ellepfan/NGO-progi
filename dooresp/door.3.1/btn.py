@@ -5,5 +5,5 @@ print(key)
 
 
 cipher = Fernet(key)
-encrypted_url = cipher.encrypt(b"http://192.168.113.247/switch/lsink_dor/turn_on")
+encrypted_url = cipher.encrypt(b"http://192.168.9.50/switch/lsink_dor/turn_on")
 print(encrypted_url)

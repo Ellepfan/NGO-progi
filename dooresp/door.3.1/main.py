@@ -15,17 +15,18 @@ class RelayControlApp:
         self.root = tk.Tk()
         self.lock_mode = False
         self.lock_message = ""
+        self.server_available = False  # Флаг доступности сервера
         self._offset_x = 0
         self._offset_y = 0
         self.button_presses = 0
         self.start_time = time.time()
 
         # Настройка шифрования
-        self.encryption_key = b'OfMcCpxHcYDSAjIVFLNqGIHg1fMkoZe5Ii_w7bTh7UA='  # Замените на свой ключ!
+        self.encryption_key = b'N_l4-Y_Bze4MMJDQWj9uWdjQkOSQA8MC69kvZ6ANDzA='  # Замените на свой ключ!
         self.cipher = Fernet(self.encryption_key)
 
         # Зашифрованный URL (генерируется заранее)
-        self.encrypted_url = b'gAAAAABoWl8aCRedz-XeBvwLCXlwWdOKdPTtTzNKKt_nQgTi7Ym9p8QttLkPOsH4JQweYvAPyaB1cvbvODmKRAnY_zXpug94rpDcHTnwD63nv_PqkC4pmrQukGnyZt9aYhebZyilEq1g'  # Инструкция ниже
+        self.encrypted_url = b'gAAAAABoY4ANHsTXlnkaJpzOP1Q8bCfJ4upuGS0me0Zu1yJ5FVqe3yaqCJ4_fCJLyTkUEP96E367EemqmKjGRyIstVlBbmLONYagw_alyLL2zd8XeliHhJv8oc3wSFm4Ofx8gESRp7_4'  # Инструкция ниже
 
         self.setup_window()
         self.load_images()
@@ -100,7 +101,8 @@ class RelayControlApp:
         self.lock_label.lower()
 
     def click_button(self):
-        if self.lock_mode:
+        # Если сервер доступен и включен режим блокировки
+        if self.server_available and self.lock_mode:
             messagebox.showwarning("Заблокировано", self.lock_message)
             return
 
@@ -113,25 +115,27 @@ class RelayControlApp:
             self.btn["image"] = self.python_logo_on
             self.button_presses += 1
 
-            try:
-                requests.post("http://192.168.113.252:8000/api/button_press", timeout=3)
-            except Exception:
-                pass
-
+            # Отправляем информацию о нажатии только если сервер доступен
+            if self.server_available:
+                try:
+                    requests.post("http://192.168.113.252:8000/api/button_press", timeout=3)
+                except Exception:
+                    self.server_available = False  # Сервер стал недоступен
         except Exception as e:
             print(f"Ошибка запроса: {e}")
             self.btn["image"] = self.python_logo_off
 
     def send_uptime(self):
         uptime_minutes = int((time.time() - self.start_time) / 60)
-        try:
-            requests.post(
-                "http://192.168.113.252:8000/api/client_uptime",
-                json={"minutes": uptime_minutes},
-                timeout=3
-            )
-        except Exception:
-            pass
+        if self.server_available:  # Отправляем только если сервер доступен
+            try:
+                requests.post(
+                    "http://192.168.113.252:8000/api/client_uptime",
+                    json={"minutes": uptime_minutes},
+                    timeout=3
+                )
+            except Exception:
+                self.server_available = False  # Сервер стал недоступен
 
         self.root.after(60000, self.send_uptime)
 
@@ -164,13 +168,15 @@ class RelayControlApp:
         try:
             response = requests.get("http://192.168.113.252:8000/api/check_lock", timeout=5)
             data = response.json()
+            self.server_available = True  # Сервер доступен
 
             if data.get("locked", False):
                 self.activate_lock(data.get("message", "Приложение заблокировано"))
             else:
                 self.deactivate_lock()
         except Exception:
-            pass
+            self.server_available = False  # Сервер недоступен
+            self.deactivate_lock()  # Разблокируем приложение, если сервер недоступен
 
     def periodic_lock_check(self):
         self.check_lock_status()
