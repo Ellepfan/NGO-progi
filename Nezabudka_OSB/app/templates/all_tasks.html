@@ -10,68 +10,97 @@
           crossorigin="anonymous">
 
     <style>
-        /* Стили для ячеек таблицы, чтобы текст не выходил за пределы */
         td {
             overflow-wrap: break-word;
             word-break: break-word;
         }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+        .success-message {
+            color: green;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body class="container mt-4">
-    <!-- Кнопка "Вернуться на главную страницу" -->
-    <div class="mb-3">
-        <a href="http://192.168.113.249:8015/pages/nezabudka" class="btn btn-primary">Вернуться на главную страницу</a>
-    </div>
+<!-- Кнопка "Вернуться на главную страницу" -->
+<div class="mb-3">
+    <a href="http://192.168.113.249:8015/pages/nezabudka" class="btn btn-primary">Вернуться на главную страницу</a>
+</div>
 
-    <h1>Создание задания</h1>
+<h1>Создание задания</h1>
 
-    <!-- Поле для ввода задания -->
-    <p>
-        <textarea rows="4" cols="50" id="task" placeholder="Введите задание"></textarea>
-    </p>
+<!-- Поле для ввода задания -->
+<p>
+    <textarea rows="4" cols="50" id="task" placeholder="Введите задание"></textarea>
+</p>
 
-    <!-- Поля для ввода даты и периода выполнения -->
-    <p>
-        Введите дату начала задания:
-        <input id="data_create_task" type="date" />
-        <br />
-        Введите период выполнения (в днях):
-        <input id="data_task" type="number" min="1" />
-        <br />
-    </p>
+<!-- Поля для ввода даты и периода выполнения -->
+<p>
+    Введите дату начала задания:
+    <input id="data_create_task" type="date" />
+    <br />
+    Введите период выполнения (в днях):
+    <input id="data_task" type="number" min="1" />
+    <br />
+</p>
 
-    <!-- Кнопка для отправки задания -->
-    <button id="saveBtn" class="btn btn-primary">Отправить</button>
+<!-- Кнопка для отправки задания -->
+<button id="saveBtn" class="btn btn-primary">Отправить</button>
+<div id="message" class="error-message"></div>
 
-    <!-- Таблица для отображения заданий -->
-    <table class="table table-striped table-light table-bordered fw-bold mt-3">
-        <thead>
-            <tr>
-                <th scope="col" class="bg-success text-white">№</th>
-                <th scope="col" class="bg-success text-white">Задание</th>
-                <th scope="col" class="bg-success text-white">Дата создания</th>
-                <th scope="col" class="bg-success text-white">Период выполнения</th>
-                <th scope="col" class="bg-success text-white">Статус</th>
-            </tr>
-        </thead>
-        <tbody id="taskTableBody">
-            {% for task in all_tasks %}
-            <!-- Заполнение таблицы существующими заданиями -->
-            <tr>
-                <td>{{ task.id }}</td>
-                <td>{{ task.task }}</td>
-                <td>{{ task.data_create_task }}</td>
-                <td>{{ task.data_task }}</td>
-                <td>{{ task.onoff }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- Таблица для отображения заданий -->
+<table class="table table-striped table-light table-bordered fw-bold mt-3">
+    <thead>
+    <tr>
+        <th scope="col" class="bg-success text-white">№</th>
+        <th scope="col" class="bg-success text-white">Задание</th>
+        <th scope="col" class="bg-success text-white">Дата создания</th>
+        <th scope="col" class="bg-success text-white">Период выполнения</th>
+        <th scope="col" class="bg-success text-white">Статус</th>
+        <th scope="col" class="bg-success text-white">Действия</th>
+    </tr>
+    </thead>
+    <tbody id="taskTableBody">
+    {% for task in all_tasks %}
+    <tr id="task-{{ task.id }}">
+        <td>{{ task.id }}</td>
+        <td>{{ task.task }}</td>
+        <td>{{ task.data_create_task }}</td>
+        <td>{{ task.data_task }}</td>
+        <td>{{ task.onoff }}</td>
+        <td>
+            <button class="btn btn-danger btn-sm delete-btn" data-task-text="{{ task.task }}">Удалить</button>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
-    <!-- JavaScript -->
-    <script>
-        // Функция для создания нового задания
-        async function createtasks(task, data_create_task, data_task) {
+<script>
+    // Получаем список всех текущих задач
+    function getAllTasks() {
+        const rows = document.querySelectorAll('#taskTableBody tr');
+        const tasks = [];
+
+        rows.forEach(row => {
+            const taskText = row.querySelector('td:nth-child(2)').textContent;
+            tasks.push(taskText.toLowerCase().trim());
+        });
+
+        return tasks;
+    }
+
+    // Проверяем, существует ли уже такая задача
+    function isTaskExists(newTask, existingTasks) {
+        return existingTasks.includes(newTask.toLowerCase().trim());
+    }
+
+    // Функция для создания нового задания
+    async function createtasks(task, data_create_task, data_task) {
+        try {
             const response = await fetch("/api/tasks/create", {
                 method: "POST",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
@@ -84,61 +113,134 @@
                 })
             });
 
-            // Проверка успешности запроса
             if (response.ok) {
                 const newTask = await response.json();
-                addTaskToTable(newTask); // Добавление нового задания в таблицу
+                addTaskToTable(newTask);
+                showMessage('Задание успешно создано!', 'success');
+                return true;
             } else {
                 const error = await response.json();
-                console.error(error.message); // Вывод ошибки в консоль
+                throw new Error(error.message || "Ошибка при создании задания");
             }
+        } catch (error) {
+            console.error(error);
+            showMessage(error.message, 'error');
+            return false;
         }
+    }
 
-        // Функция для добавления нового задания в таблицу
-        function addTaskToTable(task) {
-            const tableBody = document.getElementById("taskTableBody");
-            const newRow = document.createElement("tr");
+    function addTaskToTable(task) {
+        const tableBody = document.getElementById("taskTableBody");
+        const newRow = document.createElement("tr");
+        newRow.id = `task-${task.id}`;
 
-            // Заполнение новой строки данными о задании
-            newRow.innerHTML = `
-                <td>${task.id}</td>
-                <td>${task.task}</td>
-                <td>${task.data_create_task}</td>
-                <td>${task.data_task}</td>
-                <td>${task.onoff}</td>`;
+        newRow.innerHTML = `
+            <td>${task.id}</td>
+            <td>${task.task}</td>
+            <td>${task.data_create_task}</td>
+            <td>${task.data_task}</td>
+            <td>${task.onoff}</td>
+            <td>
+                <button class="btn btn-danger btn-sm delete-btn" data-task-text="${task.task}">Удалить</button>
+            </td>`;
 
-            tableBody.appendChild(newRow); // Добавление строки в тело таблицы
-        }
+        tableBody.appendChild(newRow);
+    }
 
-        // Функция для форматирования даты из 'YYYY-MM-DD' в 'DD.MM.YYYY'
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const day = String(date.getDate()).padStart(2, '0'); // Получение дня с нулями спереди
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // Получение месяца (нумерация с 0)
-            const year = date.getFullYear(); // Получение года
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
 
-            return `${day}.${month}.${year}`; // Форматирование даты
-        }
+        return `${day}.${month}.${year}`;
+    }
 
-        // Обработчик события нажатия кнопки "Отправить"
-        document.getElementById("saveBtn").addEventListener("click", async () => {
-            const task = document.getElementById("task").value; // Получение значения задания
-            const data_create_task_input = document.getElementById("data_create_task").value; // Получение значения даты
-            const data_create_task = formatDate(data_create_task_input); // Форматирование даты
-            const data_task = document.getElementById("data_task").value; // Получение значения периода выполнения
+    async function deleteTask(taskText) {
+        try {
+            const response = await fetch(`/api/tasks/delete`, {
+                method: "DELETE",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    task: taskText
+                })
+            });
 
-            // Проверка заполненности всех полей перед отправкой
-            if (task && data_create_task && data_task) {
-
-                await createtasks(task, data_create_task, data_task); // Создание задания
-
-                location.reload();
-
+            if (response.ok) {
+                // Находим и удаляем строку в таблице по тексту задачи
+                const rows = document.querySelectorAll('#taskTableBody tr');
+                rows.forEach(row => {
+                    const rowTaskText = row.querySelector('td:nth-child(2)').textContent;
+                    if (rowTaskText === taskText) {
+                        row.remove();
+                    }
+                });
+                showMessage('Задание успешно удалено!', 'success');
             } else {
-                alert("Пожалуйста, заполните все поля."); // Сообщение об ошибке при незаполненных полях
+                const error = await response.json();
+                throw new Error(error.detail || "Ошибка при удалении задания");
+            }
+        } catch (error) {
+            console.error("Ошибка при удалении задания:", error);
+            showMessage(error.message, 'error');
+        }
+    }
+
+    // Функция для отображения сообщений
+    function showMessage(text, type) {
+        const messageElement = document.getElementById('message');
+        messageElement.textContent = text;
+        messageElement.className = type === 'success' ? 'success-message' : 'error-message';
+    }
+
+    // Обработчик события нажатия кнопки "Отправить"
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+        const taskInput = document.getElementById("task");
+        const task = taskInput.value;
+        const data_create_task_input = document.getElementById("data_create_task").value;
+        const data_create_task = formatDate(data_create_task_input);
+        const data_task = document.getElementById("data_task").value;
+
+        // Очищаем предыдущие сообщения
+        showMessage('', 'error');
+
+        if (!task || !data_create_task || !data_task) {
+            showMessage("Пожалуйста, заполните все поля.", 'error');
+            return;
+        }
+
+        // Проверяем, существует ли уже такая задача
+        const existingTasks = getAllTasks();
+        if (isTaskExists(task, existingTasks)) {
+            showMessage("Такое задание уже существует!", 'error');
+            taskInput.focus();
+            return;
+        }
+
+        // Если все проверки пройдены, создаем задание
+        const created = await createtasks(task, data_create_task, data_task);
+        if (created) {
+            // Очищаем поля формы после успешного создания
+            taskInput.value = '';
+            document.getElementById("data_create_task").value = '';
+            document.getElementById("data_task").value = '';
+        }
+    });
+
+    // Обработчик событий для кнопок удаления
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("taskTableBody").addEventListener("click", (event) => {
+            if (event.target.classList.contains("delete-btn")) {
+                const taskText = event.target.getAttribute("data-task-text");
+                if (confirm("Вы уверены, что хотите удалить это задание?")) {
+                    deleteTask(taskText);
+                }
             }
         });
-    </script>
-
+    });
+</script>
 </body>
 </html>

@@ -224,14 +224,52 @@ async def task_on(my_task: str, my_data_create_task: str, my_data_task: int, db:
         data_task=updated_result.data_task,
         onoff=updated_result.onoff
     )
-#
-# @router.delete('/delete/{category_id}')
-# async def delete_task(task_id: int, db: DbSession):
-#     select_query = text("SELECT * FROM tasks WHERE id = :id")
-#     result = db.execute(select_query, {"id": task_id}).fetchone()
-#     if not result:
-#         raise HTTPException(status_code=404, detail="Task not found")
-#     delete_query = text("DELETE FROM tasks WHERE id = :id")
-#     db.execute(delete_query, {"id": task_id})
-#     db.commit()
-#     return {"message": "Task deleted"}
+
+@router.delete('/delete')
+async def delete_task(task_data: dict, db: DbSession):
+    # Получаем текст задачи из тела запроса
+    task_text = task_data.get('task')
+    if not task_text:
+        raise HTTPException(status_code=400, detail="Task text is required")
+
+    # Проверяем существование задачи
+    select_query = text("SELECT * FROM tasks WHERE task = :task")
+    task = db.execute(select_query, {"task": task_text}).fetchone()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # Удаляем задачу из таблицы tasks
+    delete_query = text("DELETE FROM tasks WHERE task = :task")
+    db.execute(delete_query, {"task": task_text})
+
+    db.commit()
+
+    select_query = text("SELECT * FROM result WHERE task = :task")
+    result = db.execute(select_query, {"task": task_text}).fetchone()
+    update_query = text(
+        "UPDATE result SET "
+        "data_create_task = :data_create_task, "
+        "data_task = :data_task, "
+        "flag = :flag, "
+        "name_user = :name_user, "
+        "data_result_task = :data_result_task, "
+        "id_res = :id_res "
+        "WHERE task = :task AND id_res = 0"
+        )
+
+    db.execute(
+        update_query,
+    {
+            "task": task_text,  # Название задачи оставляем как есть
+            "data_create_task": "удалено",
+            "data_task": "удалено",
+            "flag": "удалено",
+            "name_user": "удалено",
+            "data_result_task": "удалено",
+            "id_res": 3
+        },
+    )
+
+    db.commit()
+
+    return {"message": "Task deleted successfully"}

@@ -6,36 +6,132 @@
     <title>Незабудка Монитор</title>
     <link rel="shortcut icon" href="http://192.168.113.249:8015/static/image.ico" />
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #121212; /* Темный фон */
-            color: #ffffff; /* Белый текст */
+        :root {
+            --dark-bg: #121212;
+            --darker-bg: #1a1a1a;
+            --table-bg: #1e1e1e;
+            --table-header: #2d2d2d;
+            --row-even: #252525;
+            --row-hover: #3a3a3a;
+            --border-color: #444;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+
+            /* Цвета статусов */
+            --today: #ffcc00;
+            --done-vnukov: #90ee90;
+            --done-kagirov: #4caf50;
+            --done-other: #6a9eda;
+            --overdue: #f44336;
         }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
         h1 {
             text-align: center;
-            color: #ffffff; /* Белый текст для заголовка */
+            color: var(--text-primary);
+            margin: 10px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 300;
+            font-size: 1.8rem;
         }
+
+        .table-wrapper {
+            flex: 1;
+            width: 100%;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background-color: #1e1e1e; /* Темный фон для таблицы */
+            background-color: var(--table-bg);
+            table-layout: fixed;
         }
+
         th, td {
-            border: 1px solid #444; /* Темные границы */
-            padding: 10px;
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
             text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
+
         th {
-            background-color: #333; /* Темный фон для заголовков */
-            color: #ffffff; /* Белый текст для заголовков */
+            background-color: var(--table-header);
+            color: var(--text-primary);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
         }
+
+        thead tr:first-child th {
+            font-size: 1.1em;
+            text-align: center;
+            background-color: var(--darker-bg);
+            padding: 10px;
+        }
+
         tr:nth-child(even) {
-            background-color: #2a2a2a; /* Чередующиеся цвета строк */
+            background-color: var(--row-even);
         }
+
         tr:hover {
-            background-color: #444; /* Цвет при наведении */
+            background-color: var(--row-hover);
+        }
+
+        /* Стили для статусов */
+        .today {
+            background-color: var(--today);
+            color: #000;
+            font-weight: 500;
+        }
+
+        .done-vnukov {
+            background-color: var(--done-vnukov);
+            color: #000;
+        }
+
+        .done-kagirov {
+            background-color: var(--done-kagirov);
+            color: #fff;
+        }
+
+        .done-other {
+            background-color: var(--done-other);
+            color: #fff;
+        }
+
+        .overdue {
+            background-color: var(--overdue);
+            color: #fff;
+        }
+
+        .refresh-indicator {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            padding: 5px;
+        }
+
+        .empty-cell {
+            min-height: 1em;
         }
     </style>
 </head>
@@ -43,79 +139,127 @@
 
 <h1>Мониторинг заданий</h1>
 
-<table>
-    <thead>
+<div class="table-wrapper">
+    <table id="monitor-table">
+        <thead>
         <tr>
             <th colspan="3">Задания на сегодня</th>
             <th colspan="3">Выполненные</th>
             <th colspan="3">Просроченные</th>
         </tr>
         <tr>
-            <th>№</th>
-            <th>Задание</th>
-            <th>Статус</th>
-            <th>№</th>
-            <th>Задание</th>
-            <th>Выполнил</th>
-            <th>№</th>
-            <th>Задание</th>
-            <th>Дата задания</th>
+            <th width="5%">№</th>
+            <th width="20%">Задание</th>
+            <th width="10%">Статус</th>
+            <th width="5%">№</th>
+            <th width="20%">Задание</th>
+            <th width="15%">Выполнил</th>
+            <th width="5%">№</th>
+            <th width="15%">Задание</th>
+            <th width="15%">Дата задания</th>
         </tr>
-    </thead>
-    <tbody>
+        </thead>
+        <tbody>
+        {% set max_rows = [result_by_id_day|length, result_good|length, result_bad|length]|max %}
+        {% for i in range(1, max_rows + 1) %}
+        <tr>
+            <!-- Задания на сегодня -->
+            {% if result_by_id_day|length > 0 and i <= result_by_id_day|length %}
+            <td class="today">{{ result_by_id_day[i - 1].id }}</td>
+            <td class="today">{{ result_by_id_day[i - 1].task }}</td>
+            <td class="today">{{ result_by_id_day[i - 1].flag }}</td>
+            {% else %}
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+            {% endif %}
 
-      {% for i in range(1, 101) %}
-      <tr>
+            <!-- Выполненные -->
+            {% if result_good|length > 0 and i <= result_good|length %}
+            {% set user_name = result_good[i - 1].name_user %}
+            {% if user_name == "Внуков Сергей" %}
+            <td class="done-vnukov">{{ result_good[i - 1].id }}</td>
+            <td class="done-vnukov">{{ result_good[i - 1].task }}</td>
+            <td class="done-vnukov">{{ user_name }}</td>
+            {% elif user_name == "Кагиров Павел" %}
+            <td class="done-kagirov">{{ result_good[i - 1].id }}</td>
+            <td class="done-kagirov">{{ result_good[i - 1].task }}</td>
+            <td class="done-kagirov">{{ user_name }}</td>
+            {% else %}
+            <td class="done-other">{{ result_good[i - 1].id }}</td>
+            <td class="done-other">{{ result_good[i - 1].task }}</td>
+            <td class="done-other">{{ user_name }}</td>
+            {% endif %}
+            {% else %}
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+            {% endif %}
 
-          <!-- Задания на сегодня -->
-          {% if result_by_id_day|length > 0 and i <= result_by_id_day|length %}
-              <td style="background-color: #ffcc00; color: black;">{{ result_by_id_day[i - 1].id }}</td> <!-- Желтый цвет -->
-              <td style="background-color: #ffcc00; color: black;">{{ result_by_id_day[i - 1].task }}</td> <!-- Желтый цвет -->
-              <td style="background-color: #ffcc00; color: black;">{{ result_by_id_day[i - 1].flag }}</td> <!-- Желтый цвет -->
-          {% else %}
-              <td></td><td></td><td></td> <!-- Пустые ячейки -->
-          {% endif %}
+            <!-- Просроченные -->
+            {% if result_bad|length > 0 and i <= result_bad|length %}
+            <td class="overdue">{{ result_bad[i - 1].id }}</td>
+            <td class="overdue">{{ result_bad[i - 1].task }}</td>
+            <td class="overdue">{{ result_bad[i - 1].data_task }}</td>
+            {% else %}
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+            <td class="empty-cell"></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-          <!-- Выполненные -->
-          {% if result_good|length > 0 and i <= result_good|length %}
-              {% set user_name = result_good[i - 1].name_user %}
-              {% if user_name == "Внуков Сергей" %}
-                  <td style="background-color: #90ee90; color: black;">{{ result_good[i - 1].id }}</td> <!-- Светло-зеленый цвет -->
-                  <td style="background-color: #90ee90; color: black;">{{ result_good[i - 1].task }}</td> <!-- Светло-зеленый цвет -->
-                  <td style="background-color: #90ee90; color: black;">{{ user_name }}</td> <!-- Светло-зеленый цвет -->
-              {% elif user_name == "Кагиров Павел" %}
-                  <td style="background-color: #4caf50; color: white;">{{ result_good[i - 1].id }}</td> <!-- Темно-зеленый цвет -->
-                  <td style="background-color: #4caf50; color: white;">{{ result_good[i - 1].task }}</td> <!-- Темно-зеленый цвет -->
-                  <td style="background-color: #4caf50; color: white;">{{ user_name }}</td> <!-- Темно-зеленый цвет -->
-              {% else %}
-                  <td>{{ result_good[i - 1].id }}</td>
-                  <td>{{ result_good[i - 1].task }}</td>
-                  <td>{{ user_name }}</td>
-              {% endif %}
-          {% else %}
-              <td></td><td></td><td></td> <!-- Пустые ячейки -->
-          {% endif %}
-
-          <!-- Просроченные -->
-          {% if result_bad|length > 0 and i <= result_bad|length %}
-              <td style="background-color: #f44336; color: white;">{{ result_bad[i - 1].id }}</td> <!-- Красный цвет -->
-              <td style="background-color: #f44336; color: white;">{{ result_bad[i - 1].task }}</td> <!-- Красный цвет -->
-              <td style="background-color: #f44336; color: white;">{{ result_bad[i - 1].data_task }}</td> <!-- Красный цвет -->
-          {% else %}
-              <td></td><td></td><td></td> <!-- Пустые ячейки -->
-          {% endif %}
-
-      </tr>
-      {% endfor %}
-
-    </tbody>
-</table>
+<div class="refresh-indicator">
+    Страница автоматически обновится через <span id="countdown">50</span> секунд
+</div>
 
 <script>
-// Функция для обновления страницы каждые 5 секунд
-setInterval(function() {
-    location.reload();
-}, 50000); // Обновление каждые 5000 миллисекунд (5 секунд)
+    // Функция для масштабирования таблицы
+    function scaleTable() {
+        const table = document.getElementById('monitor-table');
+        const wrapper = document.querySelector('.table-wrapper');
+        const body = document.body;
+
+        // Рассчитываем необходимый масштаб
+        const scaleX = wrapper.clientWidth / table.offsetWidth;
+        const scaleY = (wrapper.clientHeight - 10) / table.offsetHeight;
+        const scale = Math.min(scaleX, scaleY, 1); // Не увеличиваем больше 100%
+
+        // Применяем трансформацию
+        table.style.transform = `scale(${scale})`;
+        table.style.transformOrigin = 'top left';
+        table.style.width = `${100/scale}%`;
+    }
+
+    // Инициализация масштабирования
+    window.addEventListener('load', scaleTable);
+    window.addEventListener('resize', scaleTable);
+
+    // Обновление счетчика
+    let seconds = 50;
+    const countdownElement = document.getElementById('countdown');
+
+    const countdown = setInterval(function() {
+        seconds--;
+        countdownElement.textContent = seconds;
+
+        if (seconds <= 0) {
+            clearInterval(countdown);
+        }
+    }, 1000);
+
+    // Обновление страницы каждые 50 секунд
+    setInterval(function() {
+        location.reload();
+    }, 50000);
+
+    // Масштабирование после загрузки контента
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(scaleTable, 100);
+    });
 </script>
 
 </body>
