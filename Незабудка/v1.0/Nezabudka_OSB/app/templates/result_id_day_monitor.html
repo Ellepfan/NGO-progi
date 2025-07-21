@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Задания сегодня</title>
+    <link rel="shortcut icon" href="http://192.168.113.249:8015/static/image.ico" />
+
+    <style>
+        body {
+            margin: 0; /* Убираем отступы по умолчанию */
+            padding: 0; /* Убираем отступы по умолчанию */
+        }
+        .background {
+            background-image: url('http://192.168.113.249:8015/static/image.webp'); /* Замените на путь к вашему изображению */
+            background-size: cover; /* Масштабирование изображения на весь экран */
+            background-position: center; /* Центрирование изображения */
+            background-repeat: no-repeat; /* Запрет повторения изображения */
+            position: absolute; /* Позиционирование фона */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Помещаем изображение на задний план */
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8); /* Полупрозрачный белый фон для контейнера */
+            padding: 20px;
+            border-radius: 10px; /* Закругленные углы */
+            margin-top: 50px; /* Отступ сверху для отделения от верхней части страницы */
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div> <!-- Элемент для фона -->
+
+    <div class="container mt-4">
+        <h1>Задания сегодня</h1>
+
+        <select id="result_id" name="result_id" required>
+            {% for result in result_id_day_monitor %}
+                <option>{{ result.id }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="text" id="name_user" placeholder="Введите имя пользователя" required />
+
+        <button onclick="location.reload()" id="saveBtn" class="btn btn-primary">Выполнить</button>
+
+        <table class="table table-striped table-light table-bordered fw-bold mt-3">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+          crossorigin="anonymous">
+
+            <thead>
+                <tr>
+                    <th scope="col" class="bg-success text-white">№</th>
+                    <th scope="col" class="bg-success text-white">Задание</th>
+                    <th scope="col" class="bg-success text-white">ДАТА</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in result_id_day_monitor %}
+                <tr>
+                    <td><p>{{ result.id }}</p></td>
+                    <td><p>{{ result.task }}</p></td>
+                    <td><p>{{ result.data_task }}</p></td>
+
+                    <!-- Добавьте другие атрибуты по вашему усмотрению -->
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+async function updateResult(resultId, nameUser) {
+    const url = `http://192.168.113.249:8015/api/result/update?result_id=${resultId}&name_user=${encodeURIComponent(nameUser)}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Updated Result:', result);
+    } catch (error) {
+        console.error('Error updating result:', error);
+    }
+}
+
+document.getElementById("saveBtn").addEventListener("click", async () => {
+    const selectedId = document.getElementById("result_id").value;
+    const nameUser = document.getElementById("name_user").value;
+
+    if (selectedId && nameUser) {
+        await updateResult(selectedId, nameUser);
+    } else {
+        alert("Пожалуйста, выберите задание и введите имя пользователя.");
+    }
+});
+    </script>
+
+</body>
+</html>

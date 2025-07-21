@@ -9,52 +9,116 @@ import time
 import os
 import json
 from cryptography.fernet import Fernet
+import psutil
+from datetime import datetime
 
 
 class RelayControlApp:
     def __init__(self):
+        # Инициализация основных атрибутов
+        self.lock_file = "app.lock"
+        self.status_file = "status.json"
+
+        # Проверка на уже запущенный экземпляр
+        if self.is_already_running():
+            self._log_error("Программа уже запущена!")
+            messagebox.showwarning("Ошибка", "Программа уже запущена!")
+            sys.exit(1)
+
+        # Основная инициализация
         self.root = tk.Tk()
         self.lock_mode = False
         self.lock_message = ""
-        self.server_available = False  # Флаг доступности сервера
+        self.server_available = False
         self._offset_x = 0
         self._offset_y = 0
         self.button_presses = 0
         self.start_time = time.time()
-        self.status_file = "status.json"  # Файл для хранения статуса
+        self.has_images = False
+
+        # Создание lock-файла
+        self.create_lock_file()
 
         # Настройка шифрования
-        self.encryption_key = b'N_l4-Y_Bze4MMJDQWj9uWdjQkOSQA8MC69kvZ6ANDzA='  # Замените на свой ключ!
+        self.encryption_key = b'N_l4-Y_Bze4MMJDQWj9uWdjQkOSQA8MC69kvZ6ANDzA='
         self.cipher = Fernet(self.encryption_key)
+        self.encrypted_url = b'gAAAAABoY4ANHsTXlnkaJpzOP1Q8bCfJ4upuGS0me0Zu1yJ5FVqe3yaqCJ4_fCJLyTkUEP96E367EemqmKjGRyIstVlBbmLONYagw_alyLL2zd8XeliHhJv8oc3wSFm4Ofx8gESRp7_4'
 
-        # Зашифрованный URL (генерируется заранее)
-        self.encrypted_url = b'gAAAAABoY4ANHsTXlnkaJpzOP1Q8bCfJ4upuGS0me0Zu1yJ5FVqe3yaqCJ4_fCJLyTkUEP96E367EemqmKjGRyIstVlBbmLONYagw_alyLL2zd8XeliHhJv8oc3wSFm4Ofx8gESRp7_4'  # Инструкция ниже
-
+        # Инициализация интерфейса
         self.setup_window()
         self.load_images()
         self.setup_ui()
         self.setup_tray_icon()
-        self.load_last_status()  # Загружаем последний статус при запуске
+
+        # Загрузка состояния и проверка блокировки
+        self.load_last_status()
         self.check_lock_status()
 
-        # Иконка приложения
+        # Настройка иконки
         try:
-            self.root.iconbitmap('.\_internal\open.ico')
-        except:
-            pass
+            self.root.iconbitmap(r'.\_internal\open.ico')
+        except Exception as e:
+            self._log_error(f"Не удалось загрузить иконку: {e}")
 
+        # Таймеры
         self.root.after(60000, self.periodic_lock_check)
         self.root.after(60000, self.send_uptime)
 
-    def decrypt_url(self):
-        """Расшифровывает URL для использования в запросах."""
+    def _log_error(self, message):
+        """Логирование ошибок в файл"""
         try:
-            return self.cipher.decrypt(self.encrypted_url).decode('utf-8')
+            log_dir = os.path.join('._internal', 'log')
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir)
+
+            with open(os.path.join(log_dir, 'errors.log'), 'a', encoding='utf-8') as f:
+                f.write(f"{datetime.now()} - {message}\n")
         except Exception as e:
-            print(f"Ошибка дешифровки: {e}")
-            return None
+            print(f"Не удалось записать в лог: {e}")
+
+    def is_already_running(self):
+        """Проверяет, запущена ли уже программа."""
+        # Проверка через процессы
+        current_pid = os.getpid()
+        for proc in psutil.process_iter(['pid', 'name']):
+            try:
+                if "python" in proc.info['name'].lower() and proc.info['pid'] != current_pid:
+                    cmdline = proc.cmdline()
+                    if len(cmdline) > 1 and ("main.py" in cmdline[1] or "door" in cmdline[1]):
+                        return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
+        # Проверка через lock-файл
+        if os.path.exists(self.lock_file):
+            try:
+                with open(self.lock_file, "r") as f:
+                    pid = int(f.read().strip())
+                    if psutil.pid_exists(pid):
+                        return True
+            except:
+                pass
+
+        return False
+
+    def create_lock_file(self):
+        """Создает файл блокировки с текущим PID."""
+        try:
+            with open(self.lock_file, "w") as f:
+                f.write(str(os.getpid()))
+        except Exception as e:
+            self._log_error(f"Ошибка создания lock-файла: {e}")
+
+    def remove_lock_file(self):
+        """Удаляет файл блокировки при выходе."""
+        try:
+            if os.path.exists(self.lock_file):
+                os.remove(self.lock_file)
+        except Exception as e:
+            self._log_error(f"Ошибка удаления lock-файла: {e}")
 
     def setup_window(self):
+        """Настройка основного окна."""
         self.root.title("")
         self.root.geometry("60x40+100+100")
         self.root.resizable(False, False)
@@ -76,18 +140,21 @@ class RelayControlApp:
         self.root.geometry(f"+{x}+{y}")
 
     def load_images(self):
+        """Загрузка изображений для интерфейса."""
         try:
-            self.python_logo_on = tk.PhotoImage(file='.\_internal\open.png')
-            self.python_logo_off = tk.PhotoImage(file='.\_internal\of.png')
-            self.lock_image = tk.PhotoImage(file='.\_internal\open.png')
+            self.python_logo_on = tk.PhotoImage(file=r'.\_internal\open.png')
+            self.python_logo_off = tk.PhotoImage(file=r'.\_internal\of.png')
+            self.lock_image = tk.PhotoImage(file=r'.\_internal\open.png')
             self.has_images = True
-        except:
+        except Exception as e:
+            self._log_error(f"Ошибка загрузки изображений: {e}")
             self.python_logo_on = tk.PhotoImage(width=1, height=1)
             self.python_logo_off = tk.PhotoImage(width=1, height=1)
             self.lock_image = tk.PhotoImage(width=1, height=1)
             self.has_images = False
 
     def setup_ui(self):
+        """Настройка пользовательского интерфейса."""
         self.btn = ttk.Button(
             self.root,
             image=self.python_logo_on,
@@ -104,12 +171,11 @@ class RelayControlApp:
         self.lock_label.lower()
 
     def click_button(self):
-        # Если сервер доступен и включен режим блокировки
+        """Обработчик нажатия кнопки."""
         if self.server_available and self.lock_mode:
             messagebox.showwarning("Заблокировано", self.lock_message)
             return
 
-        # Если сервер недоступен, но локальный статус показывает блокировку
         if not self.server_available and self.lock_mode:
             messagebox.showwarning("Заблокировано", "Сервер недоступен. Приложение остается заблокированным.")
             return
@@ -123,34 +189,45 @@ class RelayControlApp:
             self.btn["image"] = self.python_logo_on
             self.button_presses += 1
 
-            # Отправляем информацию о нажатии только если сервер доступен
             if self.server_available:
                 try:
                     requests.post("http://192.168.9.51:8001/api/button_press", timeout=3)
-                except Exception:
-                    self.server_available = False  # Сервер стал недоступен
+                except Exception as e:
+                    self.server_available = False
+                    self._log_error(f"Ошибка отправки нажатия кнопки: {e}")
         except Exception as e:
-            print(f"Ошибка запроса: {e}")
+            self._log_error(f"Ошибка запроса: {e}")
             self.btn["image"] = self.python_logo_off
 
+    def decrypt_url(self):
+        """Расшифровывает URL для запросов."""
+        try:
+            return self.cipher.decrypt(self.encrypted_url).decode('utf-8')
+        except Exception as e:
+            self._log_error(f"Ошибка дешифровки: {e}")
+            return None
+
     def send_uptime(self):
+        """Отправляет время работы на сервер."""
         uptime_minutes = int((time.time() - self.start_time) / 60)
-        if self.server_available:  # Отправляем только если сервер доступен
+        if self.server_available:
             try:
                 requests.post(
                     "http://192.168.9.51:8001/api/client_uptime",
                     json={"minutes": uptime_minutes},
                     timeout=3
                 )
-            except Exception:
-                self.server_available = False  # Сервер стал недоступен
+            except Exception as e:
+                self.server_available = False
+                self._log_error(f"Ошибка отправки uptime: {e}")
 
         self.root.after(60000, self.send_uptime)
 
     def setup_tray_icon(self):
+        """Настройка иконки в трее."""
         try:
             if self.has_images:
-                tray_image = Image.open(".\_internal\open.png")
+                tray_image = Image.open(r".\_internal\open.png")
             else:
                 tray_image = Image.new('RGB', (16, 16), 'white')
 
@@ -160,21 +237,24 @@ class RelayControlApp:
 
             self.tray_icon = pystray.Icon("relay_control", tray_image, "Дверь NGO", menu)
             threading.Thread(target=self.tray_icon.run, daemon=True).start()
-        except Exception:
-            pass
+        except Exception as e:
+            self._log_error(f"Ошибка создания иконки в трее: {e}")
 
     def hide_to_tray(self):
+        """Скрывает окно в трей."""
         self.root.withdraw()
 
     def exit_app(self, icon=None, item=None):
-        self.save_last_status()  # Сохраняем статус перед выходом
+        """Завершает работу приложения."""
+        self.save_last_status()
+        self.remove_lock_file()
         if hasattr(self, 'tray_icon'):
             self.tray_icon.stop()
         self.root.destroy()
         sys.exit()
 
     def load_last_status(self):
-        """Загружает последний сохраненный статус из файла."""
+        """Загружает последнее сохраненное состояние."""
         try:
             if os.path.exists(self.status_file):
                 with open(self.status_file, 'r') as f:
@@ -182,16 +262,15 @@ class RelayControlApp:
                     self.lock_mode = data.get('lock_mode', False)
                     self.lock_message = data.get('lock_message', "")
 
-                    # Применяем загруженный статус
                     if self.lock_mode:
                         self.activate_lock(self.lock_message, save=False)
                     else:
                         self.deactivate_lock(save=False)
         except Exception as e:
-            print(f"Ошибка загрузки статуса: {e}")
+            self._log_error(f"Ошибка загрузки статуса: {e}")
 
     def save_last_status(self):
-        """Сохраняет текущий статус в файл."""
+        """Сохраняет текущее состояние."""
         try:
             with open(self.status_file, 'w') as f:
                 json.dump({
@@ -199,27 +278,30 @@ class RelayControlApp:
                     'lock_message': self.lock_message
                 }, f)
         except Exception as e:
-            print(f"Ошибка сохранения статуса: {e}")
+            self._log_error(f"Ошибка сохранения статуса: {e}")
 
     def check_lock_status(self, icon=None, item=None):
+        """Проверяет статус блокировки на сервере."""
         try:
             response = requests.get("http://192.168.9.51:8001/api/check_lock", timeout=5)
             data = response.json()
-            self.server_available = True  # Сервер доступен
+            self.server_available = True
 
             if data.get("locked", False):
                 self.activate_lock(data.get("message", "Приложение заблокировано"))
             else:
                 self.deactivate_lock()
-        except Exception:
-            self.server_available = False  # Сервер недоступен
-            # Не изменяем статус блокировки, оставляем последний известный
+        except Exception as e:
+            self.server_available = False
+            self._log_error(f"Ошибка проверки статуса блокировки: {e}")
 
     def periodic_lock_check(self):
+        """Периодическая проверка статуса блокировки."""
         self.check_lock_status()
         self.root.after(60000, self.periodic_lock_check)
 
     def activate_lock(self, message, save=True):
+        """Активирует режим блокировки."""
         self.lock_mode = True
         self.lock_message = message
 
@@ -236,6 +318,7 @@ class RelayControlApp:
             self.save_last_status()
 
     def deactivate_lock(self, save=True):
+        """Деактивирует режим блокировки."""
         self.lock_mode = False
         self.lock_message = ""
 
@@ -248,5 +331,18 @@ class RelayControlApp:
 
 
 if __name__ == "__main__":
-    app = RelayControlApp()
-    app.root.mainloop()
+    try:
+        app = RelayControlApp()
+        app.root.mainloop()
+    except Exception as e:
+        error_msg = f"Критическая ошибка: {str(e)}"
+        print(error_msg)
+        try:
+            log_dir = os.path.join('._internal', 'log')
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir)
+            with open(os.path.join(log_dir, 'errors.log'), 'a', encoding='utf-8') as f:
+                f.write(f"{datetime.now()} - {error_msg}\n")
+        except:
+            pass
+        messagebox.showerror("Ошибка", error_msg)

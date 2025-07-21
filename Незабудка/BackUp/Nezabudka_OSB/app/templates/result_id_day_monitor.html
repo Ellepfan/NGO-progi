@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Задания сегодня</title>
+    <link rel="shortcut icon" href="http://192.168.113.249:8015/static/image.ico" />
+
+    <style>
+        body {
+            margin: 0; /* Убираем отступы по умолчанию */
+            padding: 0; /* Убираем отступы по умолчанию */
+        }
+        .background {
+            background-image: url('http://192.168.113.249:8015/static/1.jpg'); /* Замените на путь к вашему изображению */
+            background-size: cover; /* Масштабирование изображения на весь экран */
+            background-position: center; /* Центрирование изображения */
+            background-repeat: no-repeat; /* Запрет повторения изображения */
+            position: absolute; /* Позиционирование фона */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Помещаем изображение на задний план */
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.8); /* Полупрозрачный белый фон для контейнера */
+            padding: 20px;
+            border-radius: 10px; /* Закругленные углы */
+            margin-top: 50px; /* Отступ сверху для отделения от верхней части страницы */
+        }
+        .image-button {
+            width: 50px; /* Ширина изображения кнопки */
+            height: auto; /* Автоматическая высота для сохранения пропорций */
+            cursor: pointer; /* Курсор в виде указателя при наведении */
+            transition: transform 2s ease; /* Плавная анимация перемещения */
+        }
+        table {
+            width: 100%; /* Ширина таблицы на всю ширину контейнера */
+            border-collapse: collapse; /* Убираем двойные границы между ячейками */
+        }
+        th, td {
+            padding: 10px; /* Отступы внутри ячеек */
+            text-align: left; /* Выравнивание текста в ячейках влево */
+        }
+        thead {
+            background-color: #343a40; /* Темно-серый цвет заголовка таблицы */
+        }
+        th {
+            color: white; /* Цвет текста заголовка таблицы */
+        }
+        tbody tr:nth-child(even) {
+            background-color: #000000; /* Черный цвет фона четных строк таблицы */
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #212529; /* Цвет фона нечетных строк таблицы (можно изменить на черный) */
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div> <!-- Элемент для фона -->
+
+    <div class="container mt-4">
+        <h1>Задания сегодня</h1>
+
+        <select id="result_id" name="result_id" required>
+            {% for result in result_id_day_monitor %}
+                <option>{{ result.id }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Изображение вместо кнопки -->
+        <img id="saveBtn" class="image-button" src="http://192.168.113.249:8015/static/1234.png">
+
+        <table class="table table-striped table-light table-bordered fw-bold mt-3">
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+          crossorigin="anonymous">
+
+            <thead>
+                <tr>
+                    <th scope="col">№</th>
+                    <th scope="col">Задание</th>
+                    <th scope="col">ДАТА</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in result_id_day_monitor %}
+                <tr>
+                    <td><p>{{ result.id }}</p></td>
+                    <td><p>{{ result.task }}</p></td>
+                    <td><p>{{ result.data_task }}</p></td>
+
+                    <!-- Добавьте другие атрибуты по вашему усмотрению -->
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+async function updateResult(resultId, nameUser) {
+    const url = `http://192.168.113.249:8015/api/result/update?result_id=${resultId}&name_user=${encodeURIComponent(nameUser)}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Updated Result:', result);
+
+    } catch (error) {
+        console.error('Error updating result:', error);
+    }
+}
+
+document.getElementById("saveBtn").addEventListener("click", async () => {
+    const selectedId = document.getElementById("result_id").value;
+    const nameUser = "Внуков Сергей"; // Имя пользователя жестко задано
+
+    if (selectedId && nameUser) {
+
+       // Анимация перемещения вправо
+       const button = document.getElementById("saveBtn");
+       button.style.transform = "translateX(calc(100vw - 50px))"; // Перемещение вправо до конца экрана
+
+       await updateResult(selectedId, nameUser);
+
+       // Обновляем страницу через небольшую задержку после выполнения запроса
+       setTimeout(() => location.reload(), 1000); // Задержка в 1 секунду перед обновлением страницы
+
+    } else {
+        alert("Пожалуйста, выберите задание.");
+    }
+});
+    </script>
+
+</body>
+</html>
